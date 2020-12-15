@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+	echo "Usage: $0 <file>" >&2
+	exit
+fi
+
+file="$1"
+days=7
+
+while (( days-- )); do
+	if [[ $days = 0 ]]; then
+		old_suffix=
+	else
+		old_suffix=".$days"
+	fi
+
+	new_suffix=".$((days+1))"
+
+	if [[ -f $file$old_suffix ]]; then
+		rm -f "$file$new_suffix"
+		mv "$file$old_suffix" "$file$new_suffix"
+	fi
+done
