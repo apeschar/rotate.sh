@@ -23,3 +23,10 @@ debug.log.2.zst
 It's fully tested with [bats].
 
 [bats]: https://github.com/bats-core/bats-core
+
+## Installation
+
+```sh
+wget -O /usr/local/bin/rotate https://raw.githubusercontent.com/apeschar/rotate.sh/master/bin/rotate
+chmod +x /usr/local/bin/rotate
+```
