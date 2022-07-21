@@ -13,26 +13,27 @@ teardown() {
 	rm -rf "$TMP"
 }
 
+assert_files() {
+	run ls
+	assert_success
+	assert_output "$(for f in "$@"; do echo "$f"; done)"
+}
+
 @test "can rotate single file" {
 	touch target
-	run ls
-	assert_output "target"
+	assert_files "target"
 	rotate target
-	run ls
-	assert_output "target.1"
+	assert_files "target.1"
 	rotate target
 	rotate target
 	rotate target
 	rotate target
 	rotate target
-	run ls
-	assert_output "target.6"
+	assert_files "target.6"
 	rotate target
-	run ls
-	assert_output "target.7"
+	assert_files "target.7"
 	rotate target
-	run ls
-	assert_output "target.7"
+	assert_files "target.7"
 }
 
 @test "can rotate multiple files" {
@@ -62,17 +63,14 @@ teardown() {
 @test "can compress rotated files" {
 	echo 0 > target
 	rotate --zstd target
-	run ls
-	assert_output "target.1"
+	assert_files "target.1"
 	echo 1 > target
 	rotate --zstd target
-	run ls
-	assert_output "$(printf "target.1\ntarget.2.zst")"
+	assert_files "target.1" "target.2.zst"
 	[ "$(zstd -d < target.2.zst)" = 0 ]
 	echo 2 > target
 	rotate --zstd target
-	run ls
-	assert_output "$(printf "target.1\ntarget.2.zst\ntarget.3.zst")"
+	assert_files "target.1" "target.2.zst" "target.3.zst"
 	[ "$(zstd -d < target.3.zst)" = 0 ]
 	[ "$(zstd -d < target.2.zst)" = 1 ]
 }
@@ -82,8 +80,7 @@ teardown() {
 	echo 1 > target.1
 	echo 2 > target.2
 	rotate --zstd target
-	run ls
-	assert_output "$(printf "target.1\ntarget.2.zst\ntarget.3.zst")"
+	assert_files "target.1" "target.2.zst" "target.3.zst"
 }
 
 @test "can be quiet" {
