@@ -77,6 +77,15 @@ teardown() {
 	[ "$(zstd -d < target.2.zst)" = 1 ]
 }
 
+@test "can upgrade uncompressed files" {
+	echo 0 > target
+	echo 1 > target.1
+	echo 2 > target.2
+	rotate --zstd target
+	run ls
+	assert_output "$(printf "target.1\ntarget.2.zst\ntarget.3.zst")"
+}
+
 @test "can be quiet" {
 	touch target
 	run rotate target
