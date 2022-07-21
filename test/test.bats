@@ -6,6 +6,7 @@ setup() {
 	PROJECT_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 	PATH="$PROJECT_ROOT/bin:$PATH"
 	TMP="$(mktemp -d)"
+	cd "$TMP"
 }
 
 teardown() {
@@ -13,7 +14,6 @@ teardown() {
 }
 
 @test "can rotate single file" {
-	cd "$TMP"
 	touch target
 	run ls
 	assert_output "target"
@@ -36,7 +36,6 @@ teardown() {
 }
 
 @test "can rotate multiple files" {
-	cd "$TMP"
 	echo 0 > target
 	echo 1 > target.1
 	echo 2 > target.2
@@ -49,6 +48,11 @@ teardown() {
 	[ ! -f target ]
 	[ "$(cat target.1)" = 0 ]
 	[ "$(cat target.7)" = 6 ]
+}
+
+@test "blows up on faulty parameters" {
+	run rotate --what --the
+	assert_failure
 }
 
 # vim: set ft=sh :
