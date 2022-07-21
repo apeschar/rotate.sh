@@ -2,13 +2,36 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-	echo "Usage: $0 <file>" >&2
+err_usage() {
+	echo "Usage: $0 [-v] [--zstd] <file>" >&2
 	exit 1
-fi
+}
 
-file="$1"
+verbose=
+zstd=
 days=7
+
+while (( $# )); do
+	arg=$1
+	shift
+	case $arg in
+		-v)
+			verbose=1
+			;;
+		--zstd)
+			zstd=1
+			;;
+		-*)
+			err_usage
+			;;
+		*)
+			if [[ ${file+x} ]]; then
+				err_usage
+			fi
+			file=$arg
+			;;
+	esac
+done
 
 while (( days-- )); do
 	if [[ $days = 0 ]]; then
@@ -19,7 +42,18 @@ while (( days-- )); do
 
 	new_suffix=".$((days+1))"
 
+	if (( $zstd )) && [[ $old_suffix ]]; then
+		if [[ -f $file$old_suffix ]]; then
+			zstd --rm "$file$old_suffix"
+		fi
+		old_suffix="$old_suffix.zst"
+		new_suffix="$new_suffix.zst"
+	fi
+
 	if [[ -f $file$old_suffix ]]; then
+		if [[ $verbose ]]; then
+			echo "$file$old_suffix -> $file$new_suffix" >&2
+		fi
 		rm -f "$file$new_suffix"
 		mv "$file$old_suffix" "$file$new_suffix"
 	fi

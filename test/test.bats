@@ -53,6 +53,42 @@ teardown() {
 @test "blows up on faulty parameters" {
 	run rotate --what --the
 	assert_failure
+	run rotate a b c
+	assert_failure
+	run rotate -a
+	assert_failure
+}
+
+@test "can compress rotated files" {
+	echo 0 > target
+	rotate --zstd target
+	run ls
+	assert_output "target.1"
+	echo 1 > target
+	rotate --zstd target
+	run ls
+	assert_output "$(printf "target.1\ntarget.2.zst")"
+	[ "$(zstd -d < target.2.zst)" = 0 ]
+	echo 2 > target
+	rotate --zstd target
+	run ls
+	assert_output "$(printf "target.1\ntarget.2.zst\ntarget.3.zst")"
+	[ "$(zstd -d < target.3.zst)" = 0 ]
+	[ "$(zstd -d < target.2.zst)" = 1 ]
+}
+
+@test "can be quiet" {
+	touch target
+	run rotate target
+	assert_success
+	assert_output ''
+}
+
+@test "can be verbose" {
+	touch target
+	run rotate -v target
+	assert_success
+	assert_output 'target -> target.1'
 }
 
 # vim: set ft=sh :
