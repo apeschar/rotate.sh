@@ -19,3 +19,7 @@ debug.log.1
 debug.log.1
 debug.log.2.zst
 ```
+
+It's fully tested with [bats].
+
+[bats]: https://github.com/bats-core/bats-core
