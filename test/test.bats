@@ -2,7 +2,7 @@
 
 setup() {
 	load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
+	load 'test_helper/bats-assert/load'
 	PROJECT_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 	PATH="$PROJECT_ROOT/bin:$PATH"
 	TMP="$(mktemp -d)"
