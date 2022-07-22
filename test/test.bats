@@ -83,6 +83,22 @@ assert_files() {
 	assert_files "target.1" "target.2.zst" "target.3.zst"
 }
 
+@test "does not replace compressed files with uncompressed files" {
+	echo ok | zstd > target.1.zst
+	echo not ok > target.1
+	rotate --zstd target
+	assert_files "target.1" "target.2.zst"
+	[ "$(zstd -d < target.2.zst)" = "ok" ]
+	[ "$(cat target.1)" = "not ok" ]
+
+	echo new > target
+	rotate --zstd target
+	assert_files "target.1" "target.2.zst" "target.3.zst"
+	[ "$(zstd -d < target.3.zst)" = "ok" ]
+	[ "$(zstd -d < target.2.zst)" = "not ok" ]
+	[ "$(cat target.1)" = "new" ]
+}
+
 @test "can be quiet" {
 	touch target
 	run rotate target

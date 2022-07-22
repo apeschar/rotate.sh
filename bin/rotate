@@ -43,7 +43,7 @@ while (( days-- )); do
 	new_suffix=".$((days+1))"
 
 	if (( $zstd )) && [[ $old_suffix ]]; then
-		if [[ -f $file$old_suffix ]]; then
+		if [[ -f $file$old_suffix ]] && [[ ! -f $file$old_suffix.zst ]]; then
 			zstd --rm "$file$old_suffix"
 		fi
 		old_suffix="$old_suffix.zst"
